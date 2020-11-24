@@ -1,0 +1,13 @@
+{
+    "recommendations": [
+        "ms-python.python",
+        "eamodio.gitlens",
+        "coenraads.bracket-pair-colorizer",
+        "sirtori.indenticator",
+        "mutantdino.resourcemonitor",
+        "yzhang.markdown-all-in-one",
+        "ms-vscode-remote.remote-wsl",
+        "github.vscode-pull-request-github",
+        "davidanson.vscode-markdownlint"
+    ]
+}
