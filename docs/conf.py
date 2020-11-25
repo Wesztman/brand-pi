@@ -23,7 +23,6 @@ from recommonmark.transform import AutoStructify
 # -- Project information -----------------------------------------------------
 
 project = 'Fire Extinguisher 2020'
-# copyright = '2020, Toyota Material Handling Sweden AB'
 author = 'Team Bränd'
 
 # -- Global variables -----------------------------------------------------
@@ -97,9 +96,6 @@ html_css_files = [
 # View source ulr lik int eh top right corner. Pints to mater branch in duc repo.
 output = subprocess.check_output(["git", "rev-parse", "HEAD"])
 git_sha = str(output, 'utf-8')
-
-# azure_repos_url = "https://dev.azure.com/tmhe/TMHMS-Software-Development/_git/auto-uac"
-# git_version = "version=GC" + git_sha
 
 # html_context = {
 #     "display_azure_devops": True,
