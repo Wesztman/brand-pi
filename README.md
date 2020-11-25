@@ -14,8 +14,17 @@ Raspberry Pi code repository for the fire extinguisher robot of Team Bränd.
 > **_NOTE:_** Don´t forget to add python to PATH when installing Python 3.
 ____
 ## Installation
+0. Clone the repository
+```bash
+git clone https://github.com/Wesztman/brand-pi.git
+```
+1. Open VS Code and install the suggested extensions
 
-1. Install required packages
+2. Create a virtual env (where all dependencies/packages for this project will be installed)
+```bash
+py -m venv venv
+```
+3. Install required packages
 ```bash
 pip3 install -r requirements.txt
 ```
