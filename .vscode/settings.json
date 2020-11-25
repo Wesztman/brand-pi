@@ -1,5 +1,6 @@
 {
     "python.formatting.provider": "black",
     "editor.formatOnSave": true,
-    "restructuredtext.confPath": ""
+    "restructuredtext.confPath": "",
+    "python.testing.pytestEnabled": true,
 }
