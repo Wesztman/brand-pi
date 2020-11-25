@@ -91,16 +91,11 @@ html_css_files = [
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-# html_logo = 'assets/media/oae.png'
+# html_logo = 'assets/media'
 
 # View source ulr lik int eh top right corner. Pints to mater branch in duc repo.
 output = subprocess.check_output(["git", "rev-parse", "HEAD"])
 git_sha = str(output, 'utf-8')
-
-# html_context = {
-#     "display_azure_devops": True,
-#     'source_url_prefix': azure_repos_url + '?' + git_version + '&path=doc/'
-# }
 
 source_parsers = {
     '.md': 'recommonmark.parser.CommonMarkParser',
