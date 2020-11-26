@@ -3,4 +3,6 @@
     "editor.formatOnSave": true,
     "restructuredtext.confPath": "",
     "python.testing.pytestEnabled": true,
+    "python.pythonPath": "/usr/bin/python3.8",
+    "remote.WSL.fileWatcher.polling": true,
 }
