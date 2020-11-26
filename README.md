@@ -22,7 +22,7 @@ git clone https://github.com/Wesztman/brand-pi.git
 
 2. Create a virtual env where all dependencies/packages for this project will be installed.
 ```bash
-py -m venv venv
+python3 -m venv venv
 ```
 3. Install required dependencies.
 ```bash
