@@ -2,6 +2,29 @@ from transitions import Machine
 from datetime import datetime
 
 
+class Robot(object):
+    # Main robot states
+    states = ["init", "idle", "working", "cleanup"]
+
+    # Available state transitions
+    transitions = [
+        {"trigger": "init_done", "source": "init", "dest": "idle"},
+        {"trigger": "start", "source": "idle", "dest": "working"},
+        {"trigger": "stop", "source": "working", "dest": "cleanup"},
+        {"trigger": "reset", "source": "cleanup", "dest": "idle"},
+    ]
+
+    def __init__(self):
+
+        # Initialize state machine
+        self.machine = Machine(
+            model=self,
+            states=Robot.states,
+            transitions=Robot.transitions,
+            initial="init",
+        )
+
+
 def main():
     now_time = datetime.now()
     print(now_time.isoformat())
@@ -12,7 +35,7 @@ def main():
     # Parse config file
     # Initialize file change notifier on config file
 
-    # LOOP START #
+    # MAIN LOOP START #
 
     # Watch dynamic config changes
 
@@ -26,15 +49,16 @@ def main():
     # -- Idle State --#
     # ----------------#
 
-    # Wait for initialization
+    # Wait for start
 
     # Go to Working
-
-    # ( Go to Failed )
 
     # -------------------#
     # -- Working State --#
     # -------------------#
+
+    # Loop working states while active #
+    # ----------------------------------#
 
     # Internal Working State: Read Input
 
@@ -43,26 +67,17 @@ def main():
     # Internal Working State: Set Output
 
     # Internal Working State: Cleanup -> Go to Read Input
+    # ----------------------------------#
 
-    # Go to Done
+    # Go to Cleanup
 
-    # ( Go to Failed )
-
-    # ----------------#
-    # -- Done State --#
-    # ----------------#
+    # -------------------#
+    # -- Cleanup State --#
+    # -------------------#
 
     # Cleanup
 
     # Go to Idle
-
-    # ( Go to Failed )
-
-    # ------------------#
-    ### Failed State ###
-    # ------------------#
-
-    # Shutdown safely
 
 
 if __name__ == "__main__":
