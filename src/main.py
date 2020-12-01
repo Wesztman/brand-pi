@@ -1,5 +1,16 @@
 def main():
     print("Hello World!")
+
+    # Create state machine object
+    # Initialize logger
+    # Initialize signal handler
+    # Parse config file
+    # Initialize file change notifier on config file
+
+    # LOOP START #
+
+    # Watch dynamic config changes
+
     # ----------------#
     # -- Init State --#
     # ----------------#
