@@ -29,9 +29,6 @@ class Robot(object):
 
 
 def main():
-    now_time = datetime.now()
-    print(now_time.isoformat())
-
     # Variables for state enter actions
     current_state = ""
     previous_state = ""
@@ -47,6 +44,7 @@ def main():
     # MAIN LOOP START #
     while True:
 
+        now_time = datetime.now()
         current_state = robot.state
 
         # Watch dynamic config changes
@@ -55,7 +53,7 @@ def main():
         if robot.state == "init":
 
             if previous_state != robot.state:
-                print("init")
+                print("init, " + now_time.isoformat())
 
             sleep(1)
             robot.init_done()
@@ -66,7 +64,7 @@ def main():
         elif robot.state == "idle":
 
             if previous_state != robot.state:
-                print("idle")
+                print("idle, " + now_time.isoformat())
 
             sleep(1)
             robot.start()
@@ -79,7 +77,7 @@ def main():
         elif robot.state == "working":
 
             if previous_state != robot.state:
-                print("working")
+                print("working, " + now_time.isoformat())
 
             sleep(1)
             robot.stop()
@@ -104,7 +102,7 @@ def main():
         elif robot.state == "cleanup":
 
             if previous_state != robot.state:
-                print("cleanup")
+                print("cleanup, " + now_time.isoformat())
 
             sleep(1)
             robot.reset()
