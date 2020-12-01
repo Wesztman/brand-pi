@@ -2,8 +2,6 @@ from transitions import Machine, State
 from datetime import datetime
 from time import sleep
 
-# import enum
-
 
 class Robot(object):
     # Main robot states
