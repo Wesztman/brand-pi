@@ -1,6 +1,8 @@
-from transitions import Machine, State
+from transitions import Machine
 from datetime import datetime
 from time import sleep
+import logging
+from logging.handlers import RotatingFileHandler
 
 
 class Robot(object):
@@ -27,6 +29,9 @@ class Robot(object):
 
 
 def main():
+    # Parse config file
+    # Initialize file change notifier on config file
+
     # Variables for state enter actions
     current_state = ""
     previous_state = ""
@@ -35,9 +40,16 @@ def main():
     robot = Robot()
 
     # Initialize logger
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        handlers=[
+            RotatingFileHandler("debug.log", maxBytes=1000000, backupCount=5),
+            logging.StreamHandler(),
+        ],
+    )
+
     # Initialize signal handler
-    # Parse config file
-    # Initialize file change notifier on config file
 
     # MAIN LOOP START #
     while True:
@@ -50,10 +62,10 @@ def main():
         # ======================================================================== #
         if robot.state == "init":
 
-            if previous_state != robot.state:
-                print("init, " + now_time.isoformat())
+            if previous_state != robot.state:  # State enter actions, run once
+                pass
 
-            sleep(1)
+            sleep(1.0)
             robot.init_done()
 
             # Create data sets
@@ -61,8 +73,8 @@ def main():
         # ======================================================================== #
         elif robot.state == "idle":
 
-            if previous_state != robot.state:
-                print("idle, " + now_time.isoformat())
+            if previous_state != robot.state:  # State enter actions, run once
+                pass
 
             sleep(1)
             robot.start()
@@ -74,10 +86,10 @@ def main():
         # ======================================================================== #
         elif robot.state == "working":
 
-            if previous_state != robot.state:
-                print("working, " + now_time.isoformat())
+            if previous_state != robot.state:  # State enter actions, run once
+                pass
 
-            sleep(1)
+            sleep(1.0)
             robot.stop()
 
             # INTERNAL WORKING LOOP START #
@@ -99,10 +111,10 @@ def main():
         # ======================================================================== #
         elif robot.state == "cleanup":
 
-            if previous_state != robot.state:
-                print("cleanup, " + now_time.isoformat())
+            if previous_state != robot.state:  # State enter actions, run once
+                pass
 
-            sleep(1)
+            sleep(1.0)
             robot.reset()
 
             # Cleanup
@@ -110,7 +122,7 @@ def main():
             # Go to Idle
 
         else:
-            print("Unhandled robot state")
+            logging.warning("Unhandled robot state")
             exit(1)
 
         if current_state == robot.state:
