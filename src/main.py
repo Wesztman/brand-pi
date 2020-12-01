@@ -82,7 +82,7 @@ def main():
             sleep(1)
             robot.stop()
 
-            # Loop working states while active #
+            # INTERNAL WORKING LOOP START #
 
             # -------------------------------------------------------------------------#
             # Internal Working State: Read Input
