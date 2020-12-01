@@ -1,5 +1,10 @@
+from transitions import Machine
+from datetime import datetime
+
+
 def main():
-    print("Hello World!")
+    now_time = datetime.now()
+    print(now_time.isoformat())
 
     # Create state machine object
     # Initialize logger
