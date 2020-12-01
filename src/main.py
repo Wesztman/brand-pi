@@ -1,12 +1,15 @@
-from transitions import Machine
+from transitions import Machine, State
 from datetime import datetime
+from time import sleep
+
+# import enum
 
 
 class Robot(object):
     # Main robot states
     states = ["init", "idle", "working", "cleanup"]
 
-    # Available state transitions
+    # Available transitions
     transitions = [
         {"trigger": "init_done", "source": "init", "dest": "idle"},
         {"trigger": "start", "source": "idle", "dest": "working"},
@@ -29,55 +32,93 @@ def main():
     now_time = datetime.now()
     print(now_time.isoformat())
 
+    # Variables for state enter actions
+    current_state = ""
+    previous_state = ""
+
     # Create state machine object
+    robot = Robot()
+
     # Initialize logger
     # Initialize signal handler
     # Parse config file
     # Initialize file change notifier on config file
 
     # MAIN LOOP START #
+    while True:
 
-    # Watch dynamic config changes
+        current_state = robot.state
 
-    # ----------------#
-    # -- Init State --#
-    # ----------------#
+        # Watch dynamic config changes
 
-    # Create data sets
+        # ======================================================================== #
+        if robot.state == "init":
 
-    # ----------------#
-    # -- Idle State --#
-    # ----------------#
+            if previous_state != robot.state:
+                print("init")
 
-    # Wait for start
+            sleep(1)
+            robot.init_done()
 
-    # Go to Working
+            # Create data sets
 
-    # -------------------#
-    # -- Working State --#
-    # -------------------#
+        # ======================================================================== #
+        elif robot.state == "idle":
 
-    # Loop working states while active #
-    # ----------------------------------#
+            if previous_state != robot.state:
+                print("idle")
 
-    # Internal Working State: Read Input
+            sleep(1)
+            robot.start()
 
-    # Internal Working State: Data Processing
+            # Wait for start
 
-    # Internal Working State: Set Output
+            # Go to Working
 
-    # Internal Working State: Cleanup -> Go to Read Input
-    # ----------------------------------#
+        # ======================================================================== #
+        elif robot.state == "working":
 
-    # Go to Cleanup
+            if previous_state != robot.state:
+                print("working")
 
-    # -------------------#
-    # -- Cleanup State --#
-    # -------------------#
+            sleep(1)
+            robot.stop()
 
-    # Cleanup
+            # Loop working states while active #
 
-    # Go to Idle
+            # -------------------------------------------------------------------------#
+            # Internal Working State: Read Input
+
+            # -------------------------------------------------------------------------#
+            # Internal Working State: Data Processing
+
+            # -------------------------------------------------------------------------#
+            # Internal Working State: Set Output
+
+            # -------------------------------------------------------------------------#
+            # Internal Working State: Cleanup -> Go to Read Input
+
+            # Go to Cleanup
+
+        # ======================================================================== #
+        elif robot.state == "cleanup":
+
+            if previous_state != robot.state:
+                print("cleanup")
+
+            sleep(1)
+            robot.reset()
+
+            # Cleanup
+
+            # Go to Idle
+
+        else:
+            print("Unhandled robot state")
+            exit(1)
+
+        if current_state == robot.state:
+            previous_state = robot.state
 
 
 if __name__ == "__main__":
