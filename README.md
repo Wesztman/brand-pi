@@ -24,6 +24,8 @@ git clone https://github.com/Wesztman/brand-pi.git
 ```bash
 python3 -m venv venv
 ```
+activate the virtual environment by running `source env/bin/activate`
+
 3. Install required dependencies.
 ```bash
 pip3 install -r requirements.txt
