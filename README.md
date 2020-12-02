@@ -28,7 +28,11 @@ python3 -m venv venv
 ```bash
 pip3 install -r requirements.txt
 ```
-4. For logging please use `logging.{level}("text")` instead of `print()` ex. `logging.warning("Unhandled robot state")`. Log files are saved in `logs/` and all logged lines will also be printed to console. Available log levels in falling severity are:
+
+# Usage
+
+## Logging
+- Please use `logging.{level}("text")` instead of `print()` ex. `logging.warning("Unhandled robot state")`. Log files are saved in `logs/` and all logged lines will also be printed to console. Available log levels in falling severity are:
    - critical
    - error
    - warning
@@ -36,8 +40,7 @@ pip3 install -r requirements.txt
    - debug
    - notset
 
-<!-- # Usage -->
-
+Current visible log level is set at logger initialization at top of main.
 # License
 Distributed under the MIT License. See `LICENSE` for more information.
 <!-- # Contact -->
