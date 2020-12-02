@@ -6,3 +6,6 @@ Logging:
   #  debug - 10
   #  notset - 0
   log_level: 20
+
+Communication:
+  teensy_port: "/dev/ttyS0"

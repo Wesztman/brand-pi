@@ -1,9 +1,10 @@
+#!/usr/bin/env python
+
 from transitions import Machine
 from datetime import datetime
 from time import sleep
 import logging
 from logging.handlers import RotatingFileHandler
-import sys
 
 from robot_state_machine.robot_state_machine import RobotStateMachine
 
