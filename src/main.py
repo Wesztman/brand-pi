@@ -3,29 +3,9 @@ from datetime import datetime
 from time import sleep
 import logging
 from logging.handlers import RotatingFileHandler
+import sys
 
-
-class Robot(object):
-    # Main robot states
-    states = ["init", "idle", "working", "cleanup"]
-
-    # Available transitions
-    transitions = [
-        {"trigger": "init_done", "source": "init", "dest": "idle"},
-        {"trigger": "start", "source": "idle", "dest": "working"},
-        {"trigger": "stop", "source": "working", "dest": "cleanup"},
-        {"trigger": "reset", "source": "cleanup", "dest": "idle"},
-    ]
-
-    def __init__(self):
-
-        # Initialize state machine
-        self.machine = Machine(
-            model=self,
-            states=Robot.states,
-            transitions=Robot.transitions,
-            initial="init",
-        )
+from robot_state_machine.robot_state_machine import RobotStateMachine
 
 
 def main():
@@ -37,14 +17,14 @@ def main():
     previous_state = ""
 
     # Create state machine object
-    robot = Robot()
+    robot = RobotStateMachine()
 
     # Initialize logger
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
         handlers=[
-            RotatingFileHandler("debug.log", maxBytes=1000000, backupCount=5),
+            RotatingFileHandler("logs/debug.log", maxBytes=1000000, backupCount=5),
             logging.StreamHandler(),
         ],
     )
@@ -54,7 +34,6 @@ def main():
     # MAIN LOOP START #
     while True:
 
-        now_time = datetime.now()
         current_state = robot.state
 
         # Watch dynamic config changes
