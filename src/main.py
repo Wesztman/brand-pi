@@ -5,6 +5,7 @@ from datetime import datetime
 from time import sleep
 import logging
 from logging.handlers import RotatingFileHandler
+import os
 
 from robot_state_machine.robot_state_machine import RobotStateMachine
 from get_configuration.get_configuration import GetConfiguration
@@ -12,9 +13,11 @@ from get_configuration.get_configuration import GetConfiguration
 
 def main():
     # Initialize config parser
-    get_config = GetConfiguration("config.ini")
+    current_folder = os.path.dirname(os.path.abspath(__file__))
+    config_file = os.path.join(current_folder, "config.ini")
+    get_config = GetConfiguration(config_file)
 
-    print(get_config.as_string("logging", "log_level"))
+    print(get_config.as_int("logging", "log_level"))
     # Initialize file change notifier on config file
 
     # Variables for state enter actions
