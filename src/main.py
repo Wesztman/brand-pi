@@ -7,7 +7,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 from robot_state_machine.robot_state_machine import RobotStateMachine
-from configuration.configuration import Configuration
+from get_configuration.get_configuration import GetConfiguration
 
 
 def main():
