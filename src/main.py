@@ -17,7 +17,6 @@ def main():
     config_file = os.path.join(current_folder, "config.ini")
     get_config = GetConfiguration(config_file)
 
-    print(get_config.as_int("logging", "log_level"))
     # Initialize file change notifier on config file
 
     # Variables for state enter actions
@@ -29,7 +28,7 @@ def main():
 
     # Initialize logger
     logging.basicConfig(
-        level=logging.INFO,
+        level=get_config.as_int("logging", "log_level"),
         format="%(asctime)s [%(levelname)s] %(message)s",
         handlers=[
             RotatingFileHandler("logs/debug.log", maxBytes=1000000, backupCount=5),
@@ -45,6 +44,7 @@ def main():
         current_state = robot.state
 
         # Watch dynamic config changes
+        # Update log level if changed
 
         # ======================================================================== #
         if robot.state == "init":
