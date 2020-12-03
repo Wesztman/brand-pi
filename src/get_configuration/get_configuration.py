@@ -1,7 +1,7 @@
 import configparser
 
 
-class Configuration(object):
+class GetConfiguration(object):
     def __init__(self, cfg_path):
         self.cfg = configparser.ConfigParser()
         self.cfg.read(cfg_path)

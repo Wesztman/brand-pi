@@ -7,14 +7,14 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 from robot_state_machine.robot_state_machine import RobotStateMachine
-from setting.setting import Setting
+from configuration.configuration import Configuration
 
 
 def main():
     # Initialize config parser
-    config = Configuration("config.ini")
+    get_config = GetConfiguration("config.ini")
 
-    print(config.as_string("logging", "log_level"))
+    print(get_config.as_string("logging", "log_level"))
     # Initialize file change notifier on config file
 
     # Variables for state enter actions
