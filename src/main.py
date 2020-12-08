@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from transitions import Machine
 from datetime import datetime
@@ -44,6 +44,7 @@ def main():
         current_state = robot.state
 
         # Watch dynamic config changes
+
         # Update log level if changed
 
         # ======================================================================== #
