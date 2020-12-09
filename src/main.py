@@ -6,6 +6,8 @@ from time import sleep
 import logging
 from logging.handlers import RotatingFileHandler
 import os
+import select
+from inotify_simple import INotify, flags
 
 from robot_state_machine.robot_state_machine import RobotStateMachine
 from get_configuration.get_configuration import GetConfiguration
@@ -17,7 +19,12 @@ def main():
     config_file = os.path.join(current_folder, "config.ini")
     get_config = GetConfiguration(config_file)
 
-    # Initialize file change notifier on config file
+    # Create inotify object
+    inotify = INotify()
+    watch_flags = flags.MODIFY
+    wd = inotify.add_watch(config_file, watch_flags)
+
+    # Create serial object
 
     # Variables for state enter actions
     current_state = ""
@@ -43,7 +50,14 @@ def main():
 
         current_state = robot.state
 
-        # Watch dynamic config changes
+        # Watch config file changes
+        readable, _, _ = select.select([inotify], [], [])
+
+        if inotify in readable:
+            for event in inotify.read():
+                for flag in flags.from_mask(event.mask):
+                    print("Config file changed")
+                    # Do stuff
 
         # Update log level if changed
 
