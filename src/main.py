@@ -8,9 +8,27 @@ from logging.handlers import RotatingFileHandler
 import os
 import select
 from inotify_simple import INotify, flags
+import threading
 
 from robot_state_machine.robot_state_machine import RobotStateMachine
 from get_configuration.get_configuration import GetConfiguration
+
+
+def config_file_listener(config_file):
+    # Initialize inotify object
+    inotify = INotify()
+    watch_flags = flags.MODIFY
+    wd = inotify.add_watch(config_file, watch_flags)
+
+    while True:
+        # Watch config file changes
+        readable, _, _ = select.select([inotify], [], [])
+
+        if inotify in readable:
+            for event in inotify.read(timeout=0):
+                for flag in flags.from_mask(event.mask):
+                    logging.info("Config file changed")
+                    # Do stuff
 
 
 def main():
@@ -19,10 +37,15 @@ def main():
     config_file = os.path.join(current_folder, "config.ini")
     get_config = GetConfiguration(config_file)
 
-    # Create inotify object
-    inotify = INotify()
-    watch_flags = flags.MODIFY
-    wd = inotify.add_watch(config_file, watch_flags)
+    # Create general thread list
+    threads = []
+
+    # Initialize config file listener thread
+    config_file_listener_thread = threading.Thread(
+        target=config_file_listener, args=[config_file]
+    )
+    threads.append(config_file_listener_thread)
+    config_file_listener_thread.start()
 
     # Create serial object
 
@@ -51,13 +74,10 @@ def main():
         current_state = robot.state
 
         # Watch config file changes
-        readable, _, _ = select.select([inotify], [], [])
-
-        if inotify in readable:
-            for event in inotify.read():
-                for flag in flags.from_mask(event.mask):
-                    print("Config file changed")
-                    # Do stuff
+        # for event in inotify.read(timeout=0):
+        #     for flag in flags.from_mask(event.mask):
+        #         print("Config file changed")
+        #         # Do stuff
 
         # Update log level if changed
 
