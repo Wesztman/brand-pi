@@ -25,7 +25,7 @@ def config_file_listener(config_file):
         readable, _, _ = select.select([inotify], [], [])
 
         if inotify in readable:
-            for event in inotify.read(timeout=0):
+            for event in inotify.read():
                 for flag in flags.from_mask(event.mask):
                     logging.info("Config file changed")
                     # Do stuff
