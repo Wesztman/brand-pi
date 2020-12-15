@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 
+import os, select, logging, threading, pty
+from serial import Serial
 from transitions import Machine
 from datetime import datetime
 from time import sleep
-import logging
 from logging.handlers import RotatingFileHandler
-import os
-import select
 from inotify_simple import INotify, flags
-import threading
+
 
 from robot_state_machine.robot_state_machine import RobotStateMachine
 from get_configuration.get_configuration import GetConfiguration
+from test_serial.test_serial import test_serial
 
 
 def config_file_listener(config_file):
@@ -32,22 +32,9 @@ def config_file_listener(config_file):
 
 
 def main():
-    # Initialize config parser
-    current_folder = os.path.dirname(os.path.abspath(__file__))
-    config_file = os.path.join(current_folder, "config.ini")
-    get_config = GetConfiguration(config_file)
-
+    """ General declerations """
     # Create general thread list
     threads = []
-
-    # Initialize config file listener thread
-    config_file_listener_thread = threading.Thread(
-        target=config_file_listener, args=[config_file]
-    )
-    threads.append(config_file_listener_thread)
-    config_file_listener_thread.start()
-
-    # Create serial object
 
     # Variables for state enter actions
     current_state = ""
@@ -56,6 +43,22 @@ def main():
     # Create state machine object
     robot = RobotStateMachine()
 
+    """ Config file handling """
+    # Initialize config parser
+    current_folder = os.path.dirname(os.path.abspath(__file__))
+    config_file = os.path.join(current_folder, "config.ini")
+    get_config = GetConfiguration(config_file)
+
+    # Initialize config file listener thread
+    config_file_listener_thread = threading.Thread(
+        target=config_file_listener, args=[config_file]
+    )
+    threads.append(config_file_listener_thread)
+    config_file_listener_thread.start()
+
+    # Initialize serial listener thread
+
+    """ Logging """
     # Initialize logger
     logging.basicConfig(
         level=get_config.as_int("logging", "log_level"),
@@ -68,18 +71,10 @@ def main():
 
     # Initialize signal handler
 
-    # MAIN LOOP START #
+    """ Main loop start """
     while True:
 
         current_state = robot.state
-
-        # Watch config file changes
-        # for event in inotify.read(timeout=0):
-        #     for flag in flags.from_mask(event.mask):
-        #         print("Config file changed")
-        #         # Do stuff
-
-        # Update log level if changed
 
         # ======================================================================== #
         if robot.state == "init":
@@ -114,7 +109,7 @@ def main():
             sleep(1.0)
             robot.stop()
 
-            # INTERNAL WORKING LOOP START #
+            """ Internal working loop """
 
             # -------------------------------------------------------------------------#
             # Internal Working State: Read Input
