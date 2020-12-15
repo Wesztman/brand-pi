@@ -5,7 +5,7 @@ import threading
 
 def listener(port):
     # continuously listen to commands on the master device
-    while 1:
+    while True:
         res = b""
         while not res.endswith(b"\r\n"):
             # keep reading one byte at a time until we have a full line
