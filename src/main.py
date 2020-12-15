@@ -56,6 +56,11 @@ def main():
     threads.append(config_file_listener_thread)
     config_file_listener_thread.start()
 
+    """ Serial communication """
+    # Create pseudoterminals for serial testing
+    master, slave = pty.openpty()
+    slave_name = os.ttyname(slave)
+
     # Initialize serial listener thread
 
     """ Logging """
