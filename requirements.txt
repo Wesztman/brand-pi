@@ -4,3 +4,4 @@ pytest
 transitions
 pyinotify
 inotify_simple
+robust_serial

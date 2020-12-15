@@ -7,6 +7,8 @@ from datetime import datetime
 from time import sleep
 from logging.handlers import RotatingFileHandler
 from inotify_simple import INotify, flags
+from robust_serial import write_order, Order, write_i8, write_i16, read_i8, read_order
+from robust_serial.utils import open_serial_port
 
 
 from robot_state_machine.robot_state_machine import RobotStateMachine
@@ -29,6 +31,21 @@ def config_file_listener(config_file):
                 for flag in flags.from_mask(event.mask):
                     logging.info("Config file changed")
                     # Do stuff
+
+
+def serial_listener(port):
+    while True:
+        res = b""
+        while not res.endswith(b"\r\n"):
+            # Keep reading one byte at a time until we have a full line
+            res += os.read(port, 1)
+        logging.info("command: %s" % res)
+
+        # Write back the response
+        if res == b"QPGS\r\n":
+            os.write(port, b"correct result\r\n")
+        else:
+            os.write(port, b"I dont understand\r\n")
 
 
 def main():
@@ -62,6 +79,14 @@ def main():
     slave_name = os.ttyname(slave)
 
     # Initialize serial listener thread
+    serial_listener_thread = threading.Thread(target=serial_listener, args=[master])
+    threads.append(serial_listener_thread)
+    serial_listener_thread.start()
+
+    # Open serial connection to the slave
+    ser = Serial(slave_name, 9600, timeout=1)
+
+    # Write
 
     """ Logging """
     # Initialize logger
