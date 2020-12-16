@@ -13,7 +13,6 @@ from robust_serial.utils import open_serial_port
 from robot_state_machine.robot_state_machine import RobotStateMachine
 from config_handler.config_handler import GetConfiguration, config_file_listener
 from serial_handler.serial_handler import teensy_sim, serial_command
-from test_serial.test_serial import test_serial
 
 
 def signal_handler(sig, frame):
