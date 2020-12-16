@@ -12,25 +12,8 @@ from robust_serial.utils import open_serial_port
 
 
 from robot_state_machine.robot_state_machine import RobotStateMachine
-from get_configuration.get_configuration import GetConfiguration
+from config_handler.config_handler import GetConfiguration, config_file_listener
 from test_serial.test_serial import test_serial
-
-
-def config_file_listener(config_file):
-    # Initialize inotify object
-    inotify = INotify()
-    watch_flags = flags.MODIFY
-    wd = inotify.add_watch(config_file, watch_flags)
-
-    while True:
-        # Watch config file changes
-        readable, _, _ = select.select([inotify], [], [])
-
-        if inotify in readable:
-            for event in inotify.read():
-                for flag in flags.from_mask(event.mask):
-                    logging.info("Config file changed")
-                    # Do stuff
 
 
 def serial_listener(port):
