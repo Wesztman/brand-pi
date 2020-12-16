@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 
-import os, select, logging, threading, pty
+import os, logging, threading, pty
 from serial import Serial
 from transitions import Machine
 from datetime import datetime
 from time import sleep
 from logging.handlers import RotatingFileHandler
-from inotify_simple import INotify, flags
 from robust_serial import write_order, Order, write_i8, write_i16, read_i8, read_order
 from robust_serial.utils import open_serial_port
 
