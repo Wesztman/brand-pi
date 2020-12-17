@@ -27,5 +27,5 @@ class TeensySim(threading.Thread):
             else:
                 os.write(self.master_name, b"*Teensy sim* Incorrect command\r\n")
 
-    def get_slave_name(self):
+    def get_slave_port(self):
         return self.slave_name
