@@ -2,7 +2,7 @@ import logging
 from transitions import Machine
 
 
-class RobotStateMachine(object):
+class RobotStateMachine:
     # Main robot states
     states = ["init", "idle", "working", "cleanup"]
 
