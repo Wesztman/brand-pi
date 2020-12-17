@@ -12,7 +12,8 @@ from robust_serial.utils import open_serial_port
 # Self defined imports
 from robot_state_machine.robot_state_machine import RobotStateMachine
 from config_handler.config_handler import GetConfiguration, config_file_listener
-from serial_handler.serial_handler import teensy_sim, serial_command
+from serial_handler.serial_handler import serial_command
+from teensy_sim.teensy_sim import TeensySim
 
 
 def signal_handler(sig, frame):
@@ -55,17 +56,17 @@ def main():
             config_file_listener_thread.start()
 
             """ Serial communication """
-            # Create pseudoterminals for serial testing
-            master, slave = pty.openpty()
-            slave_name = os.ttyname(slave)
-
-            # Start teensy simulator thread
-            teensy_sim_thread = threading.Thread(target=teensy_sim, args=[master])
-            threads.append(teensy_sim_thread)
-            teensy_sim_thread.start()
+            if get_config.as_bool("communication", "teensy_sim_mode"):
+                # Create teensy sim object
+                teensy_sim = TeensySim()
+                teensy_sim.start()
+                slave_port = teensy_sim.get_slave_port()
+            else:
+                slave_port = get_config.as_string("communication", "teensy_port")
 
             # Open serial connection to the slave device
-            slave_device = Serial(slave_name, 9600, timeout=1)
+            # TODO(CW,201217): Add wait or try/except if port could not open
+            slave_device = Serial(slave_port, 9600, timeout=1)
 
             """ Logging """
             # Initialize logger
