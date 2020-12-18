@@ -8,6 +8,7 @@ class TeensySim(threading.Thread):
         self.master_name = master
         self.slave_name = os.ttyname(slave)
         threading.Thread.__init__(self)
+        threading.Thread.setDaemon(self, daemonic=True)
 
     def run(self):
         while True:

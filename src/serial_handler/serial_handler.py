@@ -11,6 +11,7 @@ class SerialHandler(threading.Thread):
         # TODO(CW,201217): Add wait or try/except if port could not open
         self.slave_device = Serial(self.port, 9600, timeout=1)
         threading.Thread.__init__(self)
+        threading.Thread.setDaemon(self, daemonic=True)
 
     def run(self):
         while True:
