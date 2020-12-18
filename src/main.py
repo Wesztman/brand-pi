@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os, logging, threading, pty, sys, signal
+import os, logging, threading, pty, sys, signal, queue
 from serial import Serial
 from transitions import Machine
 from datetime import datetime
@@ -12,7 +12,7 @@ from robust_serial.utils import open_serial_port
 # Self defined imports
 from robot_state_machine.robot_state_machine import RobotStateMachine
 from config_handler.config_handler import GetConfiguration, config_file_listener
-from serial_handler.serial_handler import serial_command
+from serial_handler.serial_handler import SerialHandler
 from teensy_sim.teensy_sim import TeensySim
 
 
@@ -23,7 +23,14 @@ def signal_handler(sig, frame):
 
 def main():
 
+    ser_in_queue = queue.Queue()
+    ser_out_queue = queue.Queue()
+
     """ State machine decleration """
+    # Variables for state enter actions
+    current_state = ""
+    previous_state = ""
+
     # Create robot state machine object
     robot = RobotStateMachine()
 
@@ -34,14 +41,6 @@ def main():
 
         # ======================================================================== #
         if robot.state == "init":
-            """ General declerations """
-            # Create general thread list
-            threads = []
-
-            # Variables for state enter actions
-            current_state = ""
-            previous_state = ""
-
             """ Config file handling """
             # Initialize config parser
             current_folder = os.path.dirname(os.path.abspath(__file__))
@@ -50,23 +49,22 @@ def main():
 
             # Start config file listener thread
             config_file_listener_thread = threading.Thread(
-                target=config_file_listener, args=[config_file]
+                target=config_file_listener, args=[config_file], daemon=True
             )
-            threads.append(config_file_listener_thread)
             config_file_listener_thread.start()
 
             """ Serial communication """
             if get_config.as_bool("communication", "teensy_sim_mode"):
-                # Create teensy sim object
+                # Create teensy sim object and start thread
                 teensy_sim = TeensySim()
                 teensy_sim.start()
                 slave_port = teensy_sim.get_slave_port()
             else:
                 slave_port = get_config.as_string("communication", "teensy_port")
 
-            # Open serial connection to the slave device
-            # TODO(CW,201217): Add wait or try/except if port could not open
-            slave_device = Serial(slave_port, 9600, timeout=1)
+            # Create serial handler object and start thread for the slave device
+            slave_device = SerialHandler(slave_port, ser_in_queue, ser_out_queue)
+            slave_device.start()
 
             """ Logging """
             # Initialize logger
@@ -109,16 +107,16 @@ def main():
 
             # -------------------------------------------------------------------------#
             # Internal Working State: Read Input
-            read_result = serial_command(slave_device, "right_distance")
-            logging.info(read_result)
+            ser_in_queue.put("right_distance")
+            logging.info(ser_out_queue.get())
             sleep(1)
 
-            read_result = serial_command(slave_device, "left_distance")
-            logging.info(read_result)
+            ser_in_queue.put("left_distance")
+            logging.info(ser_out_queue.get())
             sleep(1)
 
-            read_result = serial_command(slave_device, "front_distance")
-            logging.info(read_result)
+            ser_in_queue.put("front_distance")
+            logging.info(ser_out_queue.get())
             sleep(1)
 
             # -------------------------------------------------------------------------#
