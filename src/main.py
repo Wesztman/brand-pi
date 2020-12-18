@@ -22,7 +22,7 @@ def signal_handler(sig, frame):
 
 
 def main():
-
+    # In queue and out queue for serial communication
     ser_in_queue = queue.Queue()
     ser_out_queue = queue.Queue()
 
