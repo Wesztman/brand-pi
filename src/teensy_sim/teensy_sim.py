@@ -21,9 +21,9 @@ class TeensySim(threading.Thread):
 
             # Write back the response
             if res == b"right_distance":
-                os.write(self.master_name, b"*Teensy sim* 100\r\n")
+                os.write(self.master_name, b"*Teensy sim* right_distance: 100\r\n")
             elif res == b"left_distance":
-                os.write(self.master_name, b"*Teensy sim* 50\r\n")
+                os.write(self.master_name, b"*Teensy sim* left_distance: 50\r\n")
             else:
                 os.write(self.master_name, b"*Teensy sim* Incorrect command\r\n")
 
