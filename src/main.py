@@ -21,6 +21,7 @@ def signal_handler(sig, frame):
 
 
 def main():
+    """ Queue declerations """
     # In queue and out queue for serial communication
     ser_in_queue = queue.Queue()
     ser_out_queue = queue.Queue()
@@ -33,6 +34,45 @@ def main():
     # Create robot state machine object
     robot = RobotStateMachine()
 
+    """ Config file handling """
+    # Initialize config parser
+    current_folder = os.path.dirname(os.path.abspath(__file__))
+    config_file = os.path.join(current_folder, "config.ini")
+    get_config = GetConfiguration(config_file)
+
+    # Start config file listener thread
+    config_file_listener_thread = threading.Thread(
+        target=config_file_listener, args=[config_file], daemon=True
+    )
+    config_file_listener_thread.start()
+
+    """ Logging """
+    # Initialize logger
+    logging.basicConfig(
+        level=get_config.as_int("logging", "log_level"),
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        handlers=[
+            RotatingFileHandler("logs/debug.log", maxBytes=1000000, backupCount=5),
+            logging.StreamHandler(),
+        ],
+    )
+
+    """ Serial communication """
+    if get_config.as_bool("communication", "teensy_sim_mode"):
+        # Create teensy sim object and start thread
+        teensy_sim = TeensySim()
+        teensy_sim.start()
+        slave_port = teensy_sim.get_slave_port()
+    else:
+        slave_port = get_config.as_string("communication", "teensy_port")
+    # Create serial handler object and start thread for the slave device
+    slave_device = SerialHandler(slave_port, ser_in_queue, ser_out_queue)
+    slave_device.start()
+    # Initialize signal handler
+    signal.signal(signal.SIGINT, signal_handler)
+
+    # Create data set
+
     """ Main loop start """
     while True:
 
@@ -40,51 +80,10 @@ def main():
 
         # ======================================================================== #
         if robot.state == "init":
-            """ Config file handling """
-            # Initialize config parser
-            current_folder = os.path.dirname(os.path.abspath(__file__))
-            config_file = os.path.join(current_folder, "config.ini")
-            get_config = GetConfiguration(config_file)
 
-            # Start config file listener thread
-            config_file_listener_thread = threading.Thread(
-                target=config_file_listener, args=[config_file], daemon=True
-            )
-            config_file_listener_thread.start()
-
-            """ Serial communication """
-            if get_config.as_bool("communication", "teensy_sim_mode"):
-                # Create teensy sim object and start thread
-                teensy_sim = TeensySim()
-                teensy_sim.start()
-                slave_port = teensy_sim.get_slave_port()
-            else:
-                slave_port = get_config.as_string("communication", "teensy_port")
-
-            # Create serial handler object and start thread for the slave device
-            slave_device = SerialHandler(slave_port, ser_in_queue, ser_out_queue)
-            slave_device.start()
-
-            """ Logging """
-            # Initialize logger
-            logging.basicConfig(
-                level=get_config.as_int("logging", "log_level"),
-                format="%(asctime)s [%(levelname)s] %(message)s",
-                handlers=[
-                    RotatingFileHandler(
-                        "logs/debug.log", maxBytes=1000000, backupCount=5
-                    ),
-                    logging.StreamHandler(),
-                ],
-            )
-
-            # Initialize signal handler
-            signal.signal(signal.SIGINT, signal_handler)
-
-            # Create data sets
-
-            # Init done, transition to idle
-            robot.init_done()
+            # Init done, wait for serial device to connect
+            if slave_device.connected():
+                robot.init_done()
 
         # ======================================================================== #
         elif robot.state == "idle":

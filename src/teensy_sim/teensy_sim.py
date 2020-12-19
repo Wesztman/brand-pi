@@ -1,4 +1,4 @@
-import logging, os, threading, pty
+import logging, os, threading, pty, robust_serial
 
 
 class TeensySim(threading.Thread):
@@ -7,6 +7,7 @@ class TeensySim(threading.Thread):
         master, slave = pty.openpty()
         self.master_name = master
         self.slave_name = os.ttyname(slave)
+        logging.info("Teensy simulator started")
         threading.Thread.__init__(self)
         threading.Thread.setDaemon(self, daemonic=True)
 

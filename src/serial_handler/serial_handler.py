@@ -1,4 +1,5 @@
-import logging, os, threading, queue
+import logging, os, threading, queue, time
+from robust_serial import write_order, Order
 from serial import Serial
 from robust_serial.utils import open_serial_port
 
@@ -8,8 +9,9 @@ class SerialHandler(threading.Thread):
         self.port = port
         self.in_que = in_que
         self.out_que = out_que
-        # Open serial connection to the slave device
-        # TODO(CW,201217): Add wait or try/except if port could not open
+        self.is_connected = False
+
+        # Create serial communication object
         try:
             self.slave_device = open_serial_port(
                 serial_port=self.port, baudrate=9600, timeout=1
@@ -20,6 +22,19 @@ class SerialHandler(threading.Thread):
         threading.Thread.setDaemon(self, daemonic=True)
 
     def run(self):
+        # Initialize communication with serial device
+        while not self.is_connected:
+            logging.info("Waiting for serial device on port {}...".format(self.port))
+            write_order(self.slave_device, Order.HELLO)
+            bytes_array = bytearray(self.slave_device.read(1))
+            if not bytes_array:
+                time.sleep(2)
+                continue
+            byte = bytes_array[0]
+            if byte in [Order.HELLO.value, Order.ALREADY_CONNECTED.value]:
+                self.is_connected = True
+        logging.info("Connected to serial device on port {}".format(self.port))
+        # Run serial communication
         while True:
             input = self.in_que.get()
             result = self.serial_command(input)
@@ -36,3 +51,6 @@ class SerialHandler(threading.Thread):
             # read the response
             res += self.slave_device.read()
         return res.rstrip()
+
+    def connected(self):
+        return self.is_connected
