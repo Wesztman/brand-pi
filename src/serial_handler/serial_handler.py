@@ -1,5 +1,6 @@
 import logging, os, threading, queue
 from serial import Serial
+from robust_serial.utils import open_serial_port
 
 
 class SerialHandler(threading.Thread):
@@ -9,7 +10,9 @@ class SerialHandler(threading.Thread):
         self.out_que = out_que
         # Open serial connection to the slave device
         # TODO(CW,201217): Add wait or try/except if port could not open
-        self.slave_device = Serial(self.port, 9600, timeout=1)
+        self.slave_device = open_serial_port(
+            serial_port=self.port, baudrate=9600, timeout=1
+        )
         threading.Thread.__init__(self)
         threading.Thread.setDaemon(self, daemonic=True)
 

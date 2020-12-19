@@ -7,7 +7,6 @@ from datetime import datetime
 from time import sleep
 from logging.handlers import RotatingFileHandler
 from robust_serial import write_order, Order, write_i8, write_i16, read_i8, read_order
-from robust_serial.utils import open_serial_port
 
 # Self defined imports
 from robot_state_machine.robot_state_machine import RobotStateMachine
