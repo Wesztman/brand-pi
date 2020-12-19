@@ -10,9 +10,12 @@ class SerialHandler(threading.Thread):
         self.out_que = out_que
         # Open serial connection to the slave device
         # TODO(CW,201217): Add wait or try/except if port could not open
-        self.slave_device = open_serial_port(
-            serial_port=self.port, baudrate=9600, timeout=1
-        )
+        try:
+            self.slave_device = open_serial_port(
+                serial_port=self.port, baudrate=9600, timeout=1
+            )
+        except Exception as e:
+            raise e
         threading.Thread.__init__(self)
         threading.Thread.setDaemon(self, daemonic=True)
 
