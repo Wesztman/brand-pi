@@ -16,11 +16,10 @@ class TeensySim(threading.Thread):
     def run(self):
         self.is_connected = False
 
-        while not self.is_connected:
-            os.write(self.master, bytes([Order.HELLO.value]))
-            self.get_serial_message()
-
         while True:
+            if not self.is_connected:
+                os.write(self.master, bytes([Order.HELLO.value]))
+
             self.get_serial_message()
 
     def get_slave_port(self):
