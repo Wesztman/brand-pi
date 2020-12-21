@@ -73,6 +73,11 @@ class SerialHandler(threading.Thread):
         return self.is_connected
 
     def send_command(self, Order, value):
+        logging.debug(
+            "Serial handler sending command {} with value {} to device {}".format(
+                Order, value, self.port
+            )
+        )
         self.command_queue.put((Order, value))
 
     def get_file_handler(self):
