@@ -1,33 +1,43 @@
-import logging, os, threading, pty, robust_serial
+import logging, os, threading, pty, time
+from robust_serial import write_order, read_order, Order
+from robust_serial.utils import open_serial_port
 
 
 class TeensySim(threading.Thread):
     def __init__(self):
         # Create pseudoterminals for serial testing
         master, slave = pty.openpty()
-        self.master_name = master
+        self.master = master
         self.slave_name = os.ttyname(slave)
-        logging.info("Teensy simulator started")
+        logging.info("*Teensy simulator* Started")
         threading.Thread.__init__(self)
         threading.Thread.setDaemon(self, daemonic=True)
 
     def run(self):
+        self.is_connected = False
+
+        while not self.is_connected:
+            os.write(self.master, bytes([Order.HELLO.value]))
+            self.get_serial_message()
+
         while True:
-            res = b""
-            while not res.endswith(b"\r\n"):
-                # Keep reading one byte at a time until we have a full line
-                res += os.read(self.master_name, 1)
-
-            res = res.rstrip()
-            logging.info("*Teensy sim* Command received: %s" % res)
-
-            # Write back the response
-            if res == b"right_distance":
-                os.write(self.master_name, b"*Teensy sim* right_distance: 100\r\n")
-            elif res == b"left_distance":
-                os.write(self.master_name, b"*Teensy sim* left_distance: 50\r\n")
-            else:
-                os.write(self.master_name, b"*Teensy sim* Incorrect command\r\n")
+            self.get_serial_message()
 
     def get_slave_port(self):
         return self.slave_name
+
+    def get_serial_message(self):
+        bytes_array = bytearray(os.read(self.master, 1))
+        received_order = bytes_array[0]
+
+        if received_order == Order.HELLO.value:
+            if not self.is_connected:
+                self.is_connected = True
+                os.write(self.master, bytes([Order.HELLO.value]))
+            else:
+                os.write(self.master, bytes([Order.ALREADY_CONNECTED.value]))
+        elif received_order == Order.ALREADY_CONNECTED.value:
+            self.is_connected = True
+        else:
+            if received_order == Order.STOP.value:
+                logging.info("*TEENSY SIM* Received order to stop")

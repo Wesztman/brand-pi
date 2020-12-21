@@ -1,5 +1,5 @@
 import logging, os, threading, queue, time
-from robust_serial import write_order, Order
+from robust_serial import write_order, Order, write_i8
 from serial import Serial
 from robust_serial.utils import open_serial_port
 
@@ -31,7 +31,7 @@ class SerialHandler(threading.Thread):
                 time.sleep(2)
                 continue
             byte = bytes_array[0]
-            if byte in [Order.HELLO.value, Order.ALREADY_CONNECTED.value]:
+            if byte == Order.HELLO.value or byte == Order.ALREADY_CONNECTED.value:
                 self.is_connected = True
         logging.info("Connected to serial device on port {}".format(self.port))
         # Run serial communication

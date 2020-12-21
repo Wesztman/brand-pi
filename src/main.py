@@ -83,6 +83,7 @@ def main():
 
             # Init done, wait for serial device to connect
             if slave_device.connected():
+                logging.info("Initialization done")
                 robot.init_done()
 
         # ======================================================================== #
@@ -105,17 +106,6 @@ def main():
 
             # -------------------------------------------------------------------------#
             # Internal Working State: Read Input
-            ser_in_queue.put("right_distance")
-            logging.info(ser_out_queue.get())
-            sleep(1)
-
-            ser_in_queue.put("left_distance")
-            logging.info(ser_out_queue.get())
-            sleep(1)
-
-            ser_in_queue.put("front_distance")
-            logging.info(ser_out_queue.get())
-            sleep(1)
 
             # -------------------------------------------------------------------------#
             # Internal Working State: Data Processing
