@@ -23,3 +23,6 @@ class RobotStateMachine:
             transitions=RobotStateMachine.transitions,
             initial="init",
         )
+
+    def __del__(self):
+        logging.info("State machine shutting down")

@@ -1,14 +1,13 @@
 import logging, os, threading, queue, time
 from robust_serial import write_order, Order, write_i8
 from serial import Serial
-from robust_serial.utils import open_serial_port
+from robust_serial.utils import open_serial_port, CustomQueue
+from robust_serial.threads import CommandThread, ListenerThread
 
 
 class SerialHandler(threading.Thread):
-    def __init__(self, port, in_que, out_que):
+    def __init__(self, port):
         self.port = port
-        self.in_que = in_que
-        self.out_que = out_que
         self.is_connected = False
 
         # Create serial communication object
@@ -20,6 +19,9 @@ class SerialHandler(threading.Thread):
             raise e
         threading.Thread.__init__(self)
         threading.Thread.setDaemon(self, daemonic=True)
+
+    def __del__(self):
+        logging.info("Serial handler shutting down")
 
     def run(self):
         # Initialize communication with serial device
@@ -34,23 +36,44 @@ class SerialHandler(threading.Thread):
             if byte == Order.HELLO.value or byte == Order.ALREADY_CONNECTED.value:
                 self.is_connected = True
         logging.info("Connected to serial device on port {}".format(self.port))
-        # Run serial communication
-        while True:
-            input = self.in_que.get()
-            result = self.serial_command(input)
-            self.out_que.put(result)
 
-    def serial_command(self, data):
-        self.data = data
-        output = self.data + "\r\n"
-        output = bytes(output, encoding="utf-8")
-        logging.info("Sending command: %s" % output.rstrip())
-        self.slave_device.write(output)
-        res = b""
-        while not res.endswith(b"\r\n"):
-            # read the response
-            res += self.slave_device.read()
-        return res.rstrip()
+        # Create Command queue for sending orders
+        self.command_queue = CustomQueue(2)
+        # Number of messages we can send to the serial device without receiving an acknowledgment
+        n_messages_allowed = 3
+        self.n_received_semaphore = threading.Semaphore(n_messages_allowed)
+        # Lock for accessing serial file (to avoid reading and writing at the same time)
+        serial_lock = threading.Lock()
+
+        # Event to notify threads that they should terminate
+        self.exit_event = threading.Event()
+
+        logging.info("Starting serial communication threads")
+        # Threads for serial communication
+        threads = [
+            CommandThread(
+                self.slave_device,
+                self.command_queue,
+                self.exit_event,
+                self.n_received_semaphore,
+                serial_lock,
+            ),
+            ListenerThread(
+                self.slave_device,
+                self.exit_event,
+                self.n_received_semaphore,
+                serial_lock,
+            ),
+        ]
+        # Start threads
+        for t in threads:
+            t.start()
 
     def connected(self):
         return self.is_connected
+
+    def send_command(self, Order, value):
+        self.command_queue.put((Order, value))
+
+    def get_file_handler(self):
+        return self.slave_device

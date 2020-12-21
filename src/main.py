@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os, logging, threading, pty, sys, signal, queue
+import os, logging, threading, pty, sys, signal, queue, time
 from serial import Serial
 from transitions import Machine
 from datetime import datetime
@@ -21,11 +21,6 @@ def signal_handler(sig, frame):
 
 
 def main():
-    """ Queue declerations """
-    # In queue and out queue for serial communication
-    ser_in_queue = queue.Queue()
-    ser_out_queue = queue.Queue()
-
     """ State machine decleration """
     # Variables for state enter actions
     current_state = ""
@@ -66,7 +61,8 @@ def main():
     else:
         slave_port = get_config.as_string("communication", "teensy_port")
     # Create serial handler object and start thread for the slave device
-    slave_device = SerialHandler(slave_port, ser_in_queue, ser_out_queue)
+    # slave_device = SerialHandler(slave_port, ser_in_queue, ser_out_queue)
+    slave_device = SerialHandler(slave_port)
     slave_device.start()
     # Initialize signal handler
     signal.signal(signal.SIGINT, signal_handler)
@@ -112,6 +108,10 @@ def main():
 
             # -------------------------------------------------------------------------#
             # Internal Working State: Set Output
+            slave_device.send_command(Order.MOTOR, 64)
+            time.sleep(2)
+            slave_device.send_command(Order.SERVO, 20)
+            time.sleep(2)
 
             # -------------------------------------------------------------------------#
             # Internal Working State: Cleanup -> Go to Read Input

@@ -1,5 +1,5 @@
 import logging, os, threading, pty, time
-from robust_serial import write_order, read_order, Order
+from robust_serial import write_order, read_order, Order, read_i8
 from robust_serial.utils import open_serial_port
 
 
@@ -9,9 +9,12 @@ class TeensySim(threading.Thread):
         master, slave = pty.openpty()
         self.master = master
         self.slave_name = os.ttyname(slave)
-        logging.info("*Teensy simulator* Started")
+        logging.info("*TEENSY SIM* Started")
         threading.Thread.__init__(self)
         threading.Thread.setDaemon(self, daemonic=True)
+
+    def __del__(self):
+        logging.info("Teensy sim shutting down")
 
     def run(self):
         self.is_connected = False
@@ -40,3 +43,21 @@ class TeensySim(threading.Thread):
         else:
             if received_order == Order.STOP.value:
                 logging.info("*TEENSY SIM* Received order to stop")
+            elif received_order == Order.MOTOR.value:
+                motor_speed = os.read(self.master, 1)
+                logging.info(
+                    "*TEENSY SIM* Received motor order with value {}".format(
+                        ord(motor_speed.decode("utf-8"))
+                    )
+                )
+            elif received_order == Order.SERVO.value:
+                servo_angle = os.read(self.master, 1)
+                logging.info(
+                    "*TEENSY SIM* Received servo order with value {}".format(
+                        ord(servo_angle.decode("utf-8"))
+                    )
+                )
+            else:
+                os.write(self.master, bytes([Order.ERROR.value]))
+
+        os.write(self.master, bytes([Order.RECEIVED.value]))

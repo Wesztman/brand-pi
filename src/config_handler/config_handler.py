@@ -7,6 +7,9 @@ class GetConfiguration(object):
         self.cfg = configparser.ConfigParser()
         self.cfg.read(cfg_path)
 
+    def __del__(self):
+        logging.info("Config handler shutting down")
+
     def as_string(self, section, my_setting):
         try:
             ret = self.cfg.get(section, my_setting)
