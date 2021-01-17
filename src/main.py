@@ -14,10 +14,42 @@ from config_handler.config_handler import GetConfiguration, config_file_listener
 from serial_handler.serial_handler import SerialHandler
 from teensy_sim.teensy_sim import TeensySim
 
+# Used for Serial communtication
+import sys
+import glob
+import serial
+
 
 def signal_handler(sig, frame):
     logging.info("Exiting")
     sys.exit(0)
+
+
+# From https://stackoverflow.com/questions/12090503/listing-available-com-ports-with-python
+def get_serial_ports():
+    """
+    Lists serial ports.
+    :return: ([str]) A list of available serial ports
+    """
+    if sys.platform.startswith("win"):
+        ports = ["COM%s" % (i + 1) for i in range(256)]
+    elif sys.platform.startswith("linux") or sys.platform.startswith("cygwin"):
+        # this excludes your current terminal "/dev/tty"
+        ports = glob.glob("/dev/tty[A-Za-z]*")
+    elif sys.platform.startswith("darwin"):
+        ports = glob.glob("/dev/tty.*")
+    else:
+        raise EnvironmentError("Unsupported platform")
+
+    results = []
+    for port in ports:
+        try:
+            s = serial.Serial(port)
+            s.close()
+            results.append(port)
+        except (OSError, serial.SerialException):
+            pass
+    return results
 
 
 def main():
@@ -59,7 +91,11 @@ def main():
         teensy_sim.start()
         slave_port = teensy_sim.get_slave_port()
     else:
-        slave_port = get_config.as_string("communication", "teensy_port")
+        # Couldn't get it to open port from config file
+        # slave_port = get_config.as_string("communication", "teensy_port")
+
+        # The index of the list will depend on your system
+        slave_port = get_serial_ports()[3]
     # Create serial handler object and start thread for the slave device
     # slave_device = SerialHandler(slave_port, ser_in_queue, ser_out_queue)
     slave_device = SerialHandler(slave_port)
@@ -110,7 +146,7 @@ def main():
             # Internal Working State: Set Output
             slave_device.send_command(Order.MOTOR, 64)
             time.sleep(2)
-            slave_device.send_command(Order.SERVO, 20)
+            slave_device.send_command(Order.MOTOR, 20)
             time.sleep(2)
 
             # -------------------------------------------------------------------------#

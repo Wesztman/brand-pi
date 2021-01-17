@@ -1,16 +1,17 @@
 {
     "python.formatting.provider": "black",
-    "python.linting.pylintPath": "env/bin/pylint",
+    "python.linting.pylintPath": "venv/bin/pylint",
     "python.linting.pylintArgs": [
         "--load-plugins"
     ],
     "python.linting.pylintEnabled": true,
     "python.testing.pytestEnabled": true,
-    "python.pythonPath": "env/bin/python3",
+    "python.pythonPath": "venv/bin/python",
     "python.autoComplete.extraPaths": [
         "src"
     ],
     "editor.formatOnSave": true,
     "restructuredtext.confPath": "",
     "remote.WSL.fileWatcher.polling": true,
+    "python.linting.enabled": true,
 }
